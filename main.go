@@ -23,6 +23,7 @@ type PDFRequest struct {
 }
 
 func main() {
+	
 	r := mux.NewRouter()
 	r.HandleFunc("/", homeHandler).Methods("GET")
 	r.HandleFunc("/generate-pdf", generatePDFHandler).Methods("POST")

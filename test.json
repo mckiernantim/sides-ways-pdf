@@ -1,0 +1,74 @@
+{
+    "name": "Test Script",
+    "callSheetPath": null,
+    "jwtToken": "sample-jwt-token",
+    "scriptData": [
+      [
+        {
+          "watermarkText": "DRAFT",
+          "draftColorText": "WHITE",
+          "pageNumberText": "1.",
+          "visible": "true",
+          "sceneNumberText": "1",
+          "trueScene": "true",
+          "hideSceneNumberText": "",
+          "yPos": 950,
+          "xPos": 100,
+          "text": "FADE IN:",
+          "category": "transition"
+        },
+        {
+          "watermarkText": "",
+          "draftColorText": "",
+          "pageNumberText": "",
+          "visible": "true",
+          "sceneNumberText": "",
+          "trueScene": "",
+          "hideSceneNumberText": "",
+          "yPos": 900,
+          "xPos": 100,
+          "text": "EXT. CITY STREET - DAY",
+          "category": "scene-header"
+        },
+        {
+          "watermarkText": "",
+          "draftColorText": "",
+          "pageNumberText": "",
+          "visible": "true",
+          "sceneNumberText": "",
+          "trueScene": "",
+          "hideSceneNumberText": "",
+          "yPos": 850,
+          "xPos": 100,
+          "text": "A bustling city street. People hurry along the sidewalk.",
+          "category": "action"
+        },
+        {
+          "watermarkText": "",
+          "draftColorText": "",
+          "pageNumberText": "",
+          "visible": "true",
+          "sceneNumberText": "",
+          "trueScene": "",
+          "hideSceneNumberText": "",
+          "yPos": 800,
+          "xPos": 250,
+          "text": "JOHN",
+          "category": "character"
+        },
+        {
+          "watermarkText": "",
+          "draftColorText": "",
+          "pageNumberText": "",
+          "visible": "true",
+          "sceneNumberText": "",
+          "trueScene": "",
+          "hideSceneNumberText": "",
+          "yPos": 750,
+          "xPos": 150,
+          "text": "Hey, watch where you're going!",
+          "category": "dialogue"
+        }
+      ]
+    ]
+  }
