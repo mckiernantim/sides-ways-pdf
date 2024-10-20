@@ -6,17 +6,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"html/template"
-	"image"
-	"image/jpeg"
-	"image/png"
-	"io/ioutil"
+    "regexp"
 	"log"
 	"math"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strconv"
-	"strings"
+	"io/ioutil"
 
 	"github.com/chromedp/cdproto/page"
 	"github.com/chromedp/chromedp"
@@ -56,7 +53,7 @@ type LineData struct {
 func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/", homeHandler).Methods("GET")
-	r.HandleFunc("/generate-pdf", generatePDFHandler).Methods("POST")
+	r.HandleFunc("/generate-pdf", generatePDF).Methods("POST")
 
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -71,161 +68,116 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "PDF Service is running")
 }
 
-func generatePDFHandler(w http.ResponseWriter, r *http.Request) {
-	var req PDFRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
-		return
-	}
-
-	pdf, err := generatePDF(req)
-	if err != nil {
-		http.Error(w, "Failed to generate PDF: "+err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/pdf")
-	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s.pdf", req.Name))
-	w.Write(pdf)
-}
 
 func generatePDF(req PDFRequest) ([]byte, error) {
-	var callsheetPDF []byte
-	var err error
+    mainPDF, err := generateMainPDF(req)
+    if err != nil {
+        return nil, fmt.Errorf("failed to generate main PDF: %v", err)
+    }
 
-	if req.CallSheetPath != "" {
-		callsheetPDF, err = processCallsheet(req.CallSheetPath)
-		if err != nil {
-			return nil, fmt.Errorf("failed to process callsheet: %v", err)
-		}
-	}
+    if req.CallSheetPath != "" {
+        callsheetPDF, err := processCallsheet(req.CallSheetPath)
+        if err != nil {
+            return nil, fmt.Errorf("failed to process callsheet: %v", err)
+        }
+        return mergePDFs(callsheetPDF, mainPDF)
+    }
 
-	mainPDF, err := generateMainPDF(req)
-	if err != nil {
-		return nil, fmt.Errorf("failed to generate main PDF: %v", err)
-	}
-
-	if callsheetPDF != nil {
-		return mergePDFs(callsheetPDF, mainPDF)
-	}
-
-	return mainPDF, nil
-}
-
-func processCallsheet(callsheetPath string) ([]byte, error) {
-	fileExt := strings.ToLower(filepath.Ext(callsheetPath))
-
-	switch fileExt {
-	case ".pdf":
-		return ioutil.ReadFile(callsheetPath)
-	case ".jpg", ".jpeg", ".png":
-		return convertImageToPDF(callsheetPath)
-	default:
-		return nil, fmt.Errorf("unsupported file type: %s", fileExt)
-	}
-}
-
-func convertImageToPDF(imagePath string) ([]byte, error) {
-	file, err := os.Open(imagePath)
-	if err != nil {
-		return nil, fmt.Errorf("failed to open image: %v", err)
-	}
-	defer file.Close()
-
-	img, format, err := image.Decode(file)
-	if err != nil {
-		return nil, fmt.Errorf("failed to decode image: %v", err)
-	}
-
-	pdf := gofpdf.New("P", "mm", "A4", "")
-	pdf.AddPage()
-
-	bounds := img.Bounds()
-	imgWidth := float64(bounds.Max.X)
-	imgHeight := float64(bounds.Max.Y)
-
-	pageWidth, pageHeight := pdf.GetPageSize()
-	scale := math.Min(pageWidth/imgWidth, pageHeight/imgHeight)
-
-	tempImgPath := filepath.Join(os.TempDir(), "temp_callsheet."+format)
-	tempImgFile, err := os.Create(tempImgPath)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create temp image file: %v", err)
-	}
-	defer os.Remove(tempImgPath)
-
-	switch format {
-	case "jpeg":
-		jpeg.Encode(tempImgFile, img, nil)
-	case "png":
-		png.Encode(tempImgFile, img)
-	default:
-		return nil, fmt.Errorf("unsupported image format: %s", format)
-	}
-
-	pdf.Image(tempImgPath, 0, 0, imgWidth*scale, imgHeight*scale, false, "", 0, "")
-
-	var buf bytes.Buffer
-	err = pdf.Output(&buf)
-	if err != nil {
-		return nil, fmt.Errorf("failed to generate PDF from image: %v", err)
-	}
-
-	return buf.Bytes(), nil
-}
-
-func generateMainPDF(req PDFRequest) ([]byte, error) {
-	ctx, cancel := chromedp.NewContext(context.Background())
-	defer cancel()
-
-	html, err := generateHTML(req)
-	if err != nil {
-		return nil, fmt.Errorf("failed to generate HTML: %v", err)
-	}
-
-	var buf []byte
-	if err := chromedp.Run(ctx,
-		chromedp.Navigate("data:text/html,"+html),
-		chromedp.WaitVisible("body", chromedp.ByQuery),
-		chromedp.ActionFunc(func(ctx context.Context) error {
-			var err error
-			buf, _, err = page.PrintToPDF().WithPrintBackground(true).Do(ctx)
-			return err
-		}),
-	); err != nil {
-		return nil, fmt.Errorf("failed to generate PDF: %v", err)
-	}
-
-	return buf, nil
+    return mainPDF, nil
 }
 
 func mergePDFs(pdf1, pdf2 []byte) ([]byte, error) {
-	tempFile1, err := ioutil.TempFile("", "pdf1-*.pdf")
-	if err != nil {
-		return nil, fmt.Errorf("failed to create temp file for PDF1: %v", err)
-	}
-	defer os.Remove(tempFile1.Name())
-	if _, err := tempFile1.Write(pdf1); err != nil {
-		return nil, fmt.Errorf("failed to write PDF1 to temp file: %v", err)
-	}
-	tempFile1.Close()
+    return basicPDFMerge(pdf1, pdf2)
+}
 
-	tempFile2, err := ioutil.TempFile("", "pdf2-*.pdf")
-	if err != nil {
-		return nil, fmt.Errorf("failed to create temp file for PDF2: %v", err)
-	}
-	defer os.Remove(tempFile2.Name())
-	if _, err := tempFile2.Write(pdf2); err != nil {
-		return nil, fmt.Errorf("failed to write PDF2 to temp file: %v", err)
-	}
-	tempFile2.Close()
+func basicPDFMerge(pdf1, pdf2 []byte) ([]byte, error) {
+    // Regular expressions to find PDF components
+    reStartxref := regexp.MustCompile(`(?m)^startxref\s*\n\d+\s*\n%%EOF`)
+    reObj := regexp.MustCompile(`\n(\d+) 0 obj`)
 
-	var buf bytes.Buffer
-	if err := api.MergeFile([]string{tempFile1.Name(), tempFile2.Name()}, &buf, nil); err != nil {
-		return nil, fmt.Errorf("failed to merge PDFs: %v", err)
-	}
+    // Find and remove the last startxref section from the first PDF
+    pdf1 = reStartxref.ReplaceAll(pdf1, []byte{})
 
-	return buf.Bytes(), nil
+    // Find the highest object number in the first PDF
+    matches := reObj.FindAllSubmatch(pdf1, -1)
+    highestObj := 0
+    for _, match := range matches {
+        obj, err := strconv.Atoi(string(match[1]))
+        if err != nil {
+            return nil, fmt.Errorf("failed to parse object number: %v", err)
+        }
+        if obj > highestObj {
+            highestObj = obj
+        }
+    }
+
+    // Adjust object numbers in the second PDF
+    pdf2Str := string(pdf2)
+    objMap := make(map[string]string)
+    stringMatches := reObj.FindAllStringSubmatch(pdf2Str, -1)
+    for _, match := range stringMatches {
+        oldObj := match[1]
+        newObj := strconv.Itoa(highestObj + 1)
+        objMap[oldObj] = newObj
+        highestObj++
+    }
+
+    for oldObj, newObj := range objMap {
+        pdf2Str = regexp.MustCompile(`\b`+regexp.QuoteMeta(oldObj)+` 0 obj\b`).ReplaceAllString(pdf2Str, newObj+" 0 obj")
+        pdf2Str = regexp.MustCompile(`\b`+regexp.QuoteMeta(oldObj)+` 0 R\b`).ReplaceAllString(pdf2Str, newObj+" 0 R")
+    }
+
+    // Combine PDFs
+    mergedPDF := append(pdf1, []byte(pdf2Str)...)
+
+    // Update PDF header
+    mergedPDF = append([]byte("%PDF-1.7\n"), mergedPDF...)
+
+    // Add new startxref and EOF
+    xrefIndex := len(mergedPDF)
+    mergedPDF = append(mergedPDF, []byte(fmt.Sprintf("\nstartxref\n%d\n%%EOF", xrefIndex))...)
+
+    return mergedPDF, nil
+}
+
+func processCallsheet(callsheetPath string) ([]byte, error) {
+    fileExt := filepath.Ext(callsheetPath)
+    switch fileExt {
+    case ".pdf":
+        return ioutil.ReadFile(callsheetPath)
+    case ".png", ".jpg", ".jpeg":
+        return convertImageToPDF(callsheetPath)
+    default:
+        return nil, fmt.Errorf("unsupported file type: %s", fileExt)
+    }
+}
+
+
+func convertImageToPDF(imagePath string) ([]byte, error) {
+    pdf := gofpdf.New("P", "mm", "A4", "")
+    pdf.AddPage()
+
+    imageInfo := pdf.RegisterImage(imagePath, "")
+    if imageInfo == nil {
+        return nil, fmt.Errorf("failed to register image")
+    }
+
+    imgWidth, imgHeight := imageInfo.Extent()
+    pageWidth, pageHeight := pdf.GetPageSize()
+    
+    ratio := math.Min(pageWidth/imgWidth, pageHeight/imgHeight)
+    width := imgWidth * ratio
+    height := imgHeight * ratio
+
+    pdf.Image(imagePath, (pageWidth-width)/2, (pageHeight-height)/2, width, height, false, "", 0, "")
+
+    var buf bytes.Buffer
+    err := pdf.Output(&buf)
+    if err != nil {
+        return nil, fmt.Errorf("failed to generate PDF from image: %v", err)
+    }
+
+    return buf.Bytes(), nil
 }
 
 func generateHTML(req PDFRequest) (string, error) {
