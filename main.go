@@ -53,7 +53,7 @@ type LineData struct {
 func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/", homeHandler).Methods("GET")
-	r.HandleFunc("/generate-pdf", generatePDF).Methods("POST")
+	r.HandleFunc("/generate-pdf", generatePDFHandler).Methods("POST")
 
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -64,10 +64,62 @@ func main() {
 	log.Fatal(http.ListenAndServe(":"+port, r))
 }
 
+func generatePDFHandler(w http.ResponseWriter, r *http.Request) {
+	var req PDFRequest
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	pdf, err := generatePDF(req)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Failed to generate PDF: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/pdf")
+	w.Header().Set("Content-Disposition", "attachment; filename=generated.pdf")
+	w.Write(pdf)
+}
+
 func homeHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "PDF Service is running")
 }
 
+func generateMainPDF(req PDFRequest) ([]byte, error) {
+    // Generate HTML from the script data
+    html, err := generateHTML(req)
+    if err != nil {
+        return nil, fmt.Errorf("failed to generate HTML: %v", err)
+    }
+
+    // Convert HTML to PDF using Chrome headless
+    ctx, cancel := chromedp.NewContext(context.Background())
+    defer cancel()
+
+    var buf []byte
+    if err := chromedp.Run(ctx,
+        chromedp.Navigate("about:blank"),
+        chromedp.ActionFunc(func(ctx context.Context) error {
+            frameTree, err := page.GetFrameTree().Do(ctx)
+            if err != nil {
+                return err
+            }
+            return page.SetDocumentContent(frameTree.Frame.ID, html).Do(ctx)
+        }),
+        chromedp.WaitReady("body"),
+        chromedp.ActionFunc(func(ctx context.Context) error {
+            var err error
+            buf, _, err = page.PrintToPDF().WithPrintBackground(true).Do(ctx)
+            return err
+        }),
+    ); err != nil {
+        return nil, fmt.Errorf("failed to generate PDF: %v", err)
+    }
+
+    return buf, nil
+}
 
 func generatePDF(req PDFRequest) ([]byte, error) {
     mainPDF, err := generateMainPDF(req)
