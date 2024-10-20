@@ -6,12 +6,15 @@ require (
 	github.com/chromedp/cdproto v0.0.0-20241014181340-cb3a7a1d51d7
 	github.com/chromedp/chromedp v0.11.0
 	github.com/gorilla/mux v1.8.0
+	github.com/jung-kurt/gofpdf v1.16.2
 )
 
 require (
 	github.com/hhrutter/lzw v1.0.0 // indirect
 	github.com/hhrutter/tiff v1.0.1 // indirect
+	github.com/mattn/go-runewidth v0.0.16 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
+	github.com/rivo/uniseg v0.4.7 // indirect
 	golang.org/x/image v0.19.0 // indirect
 	golang.org/x/text v0.17.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
