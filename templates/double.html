@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>PDF</title>
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Courier+Prime&display=swap" as="style" />
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime&display=swap" rel="stylesheet" />
+  
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Courier+Prime&display=swap');
+
+        @page {
+            height: 816px;
+            width: 1056px;
+        }
+
+        body {
+            font-family: 'Courier Prime', monospace;
+            width: 1056px;
+            height: 816px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .break {
+            page-break-after: always;
+            height: 816px;
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            margin: 0 auto;
+            text-align: left;
+        }
+
+        .break:last-of-type {
+            page-break-after: avoid;
+        }
+
+
+        p {
+            display: block;
+        }
+
+        .isRevision {
+            display: block !important;
+            right: 35px !important
+        }
+
+        .screenbox {
+            margin: 0 auto;
+            margin-bottom: 50px;
+            position: relative;
+            break-before: always;
+            width: 95%;
+            height: 100%
+        }
+
+
+        .legal {
+            margin: 750px 10px 0px 10px;
+            width: 45%
+        }
+
+        li,
+        span {
+            z-index: 1000;
+            position: absolute;
+            list-style-type: none;
+            line-height: normal;
+            padding: 0;
+            margin: 0;
+            font-size: 10px;
+            color: black;
+        }
+
+        .page-number-text {
+            position: absolute;
+            page-break-before: always;
+            text-align: right;
+            right: 75px;
+            bottom: 775px
+        }
+
+
+        li.page-number {
+            text-decoration: none !important;
+        }
+
+        .true-scene {
+            border: 5px solid black;
+            border-radius: 50%;
+            padding: 1%;
+        }
+
+        .false {
+            text-decoration: line-through;
+            text-decoration-thickness: 15%;
+        }
+
+        .true {
+            list-style-type: none !important;
+            text-decoration: none !important
+        }
+
+        .scene-header {
+            font-weight: 700;
+        }
+
+        .version {
+            display: none;
+        }
+
+        .character {
+            text-align: center;
+        }
+
+        .parenthetical {
+            text-align: left;
+        }
+
+        .hideEnd,
+        .hideCont,
+        .hideBar {
+            display: none !important
+        }
+
+        .scene-header {
+            font-weight: 900 !important;
+
+
+        }
+
+        .scene-number-left {
+            left: 45px !important;
+            font-weight: 900 !important;
+        }
+
+        .bar {
+            border-top: 2.5px solid;
+            width: 87%;
+            text-align: right;
+            font-size: 11.5px;
+            padding-left: -5%;
+            font-weight: 900 !important;
+        }
+
+        .scene-number-right {
+            right: 45px !important;
+            text-align: right;
+            font-weight: 900;
+        }
+
+        .docTitle {
+            font: 42px;
+            margin: 0 auto;
+
+        }
+
+        .END {
+            width: 85%;
+            border-bottom: 2.5px solid black;
+            position: absolute;
+            font-size: 11.5px;
+            padding-left: 4%;
+            font-weight: 900 !important;
+        }
+
+        .CONTINUE {
+            width: 90%;
+            padding-top: 2.5px;
+            text-align: right;
+            right: 5px;
+            font-size: 20px;
+            font-weight: 900 !important;
+            bottom: 50px;
+            border-bottom: 2px solid black;
+        }
+
+
+        .CONTINUE-TOP {
+            right: 26px ! important;
+            width: 90%;
+            padding-top: 2.5px;
+            text-align: left;
+            right: 5px;
+            font-size: 20.5px;
+            font-weight: 900 !important;
+            border-bottom: 2px solid black;
+        }
+
+        .page-number-hidden,
+        .page-number {
+            display: none !important;
+        }
+
+        .draft-color-text {
+            bottom: 95%;
+            position: absolute;
+            right: 43%
+        }
+
+        .footer {
+            font-size: 6px !important;
+            bottom: 15px;
+            left: 50px;
+
+        }
+
+        .cover-sheet-left,
+        .cover-sheet-right {
+            margin: 2%;
+        }
+
+        .showCont {
+            top: 35px;
+            font-size: larger;
+            font-weight: bold;
+        }
+
+        .start-span {
+            right: 25%;
+            font-size: larger;
+        }
+
+        .end-span {
+            left: -15px;
+            font-size: larger;
+            top: -15px;
+        }
+
+        .true.scene-header {
+            left: 85px !important
+        }
+
+        .false.scene-header {
+            left: 85px !important
+        }
+
+        .watermark {
+            z-index: 2;
+            font-size: 2.2em;
+            transform: rotateY(0deg) rotate(315deg);
+            position: absolute;
+            bottom: 35%;
+            opacity: .5;
+        }
+
+
+        .startX {
+            border: black 2px solid;
+            width: 90%;
+        }
+
+        .more {
+            display: none
+        }
+
+        .line {
+
+            top: 50%;
+            border: 2px solid black
+        }
+
+        .start-bar {
+            border-top: 2.5px solid;
+            width: 87%;
+            text-align: right;
+            font-size: 11.5px;
+            padding-left: -5%;
+            font-weight: 900 !important;
+        }
+
+        .icon {
+            background-image: url(https://icon2.cleanpng.com/20180420/thq/kisspng-greek-alphabet-letter-case-x-letter-x-5adaa3dcdbcdb1.5212351015242782369003.jpg);
+            width: 60%;
+            height: 100%;
+            background-size: 100%;
+            background-repeat-x: no-repeat;
+            background-repeat-y: initial;
+            opacity: 0.2;
+
+            margin: 0 auto;
+            left: 19%;
+        }
+
+        .notes {
+            text-align: center;
+            padding-top: 2%;
+            border-bottom: 2px solid;
+            font-size: 30px;
+            height: 30px;
+            border-bottom: 2px solid
+        }
+
+        .isRevision {
+            display: block !important;
+            right: 35px !important
+        }
+
+        .watermark {
+            z-index: 2;
+            font-size: 66px;
+            transform: rotateY(0deg) rotate(315deg);
+            position: absolute;
+            bottom: 35%;
+            opacity: .4;
+            bottom: 50%;
+            text-align: center;
+            width: 90%;
+            text-align: color;
+        }
+
+        .hide-bar {
+            display: none;
+        }
+    </style>
+    <meta charset="utf-8">
+</head>
+
+<body>
+    {{range .}}
+    <!-- SET A PAGE BREAK FOR EACH SEPERATE PAGE -->
+    <div class="break">
+        <!-- FIRST SCRIPT BOX FOR LANDSCAPE DOUBLES -->
+
+        <ul class="screenbox">
+            {{range .}}
+            <span class="watermark">{{line.watermarkText}}</span>
+            <!-- page number span -->
+            <span class="draft-color-text" {{line.visible}}>{{line.draftColorText}}</span>
+            <span class="page-number-text" {{line.visible}}>{{line.pageNumberText}} </span>
+
+            <!-- scene number span -->
+            <span class='scene-number-left {{ line.trueScene }} {{ line.visible }} {{line.hideSceneNumberText}}' ;
+                style='bottom: {{dualSceneNum line}}; left:{{ formatX line.xPos}};'>
+                {{line.sceneNumberText}}
+            </span>
+
+            <!-- start span -->
+            <span class="{{line.bar}} {{line.visible}}" style="bottom:{{startSingle line.barY}}">
+                <span class="start-span">START {{line.sceneNumberText}}</span>
+            </span>
+
+            <!-- LINE SPAN -->
+            <li class="{{ line.visible}} {{ line.category }} {{line.hidden}} "
+                style='bottom: {{ formatY line.yPos}}; left:{{ formatX line.xPos}};'>
+                {{line.text}}
+            </li>
+            <span class="{{line.isRevision}} hidden" style="bottom:{{formatEndY line.yPos}}">*</span>
+            <span style="right:50px" class="{{line.category}} {{line.cont}}">
+                ↓↓↓{{line.sceneNumberText}} CONTINUED ↓↓↓
+            </span>
+
+            <!-- end span -->
+            <span class="{{line.end}} {{line.hideEnd}}" style="bottom: {{formatEndY line.endY}}">
+                <span class="end-span"> END {{line.sceneNumberText}}</span>
+            </span>
+
+            <!-- right scene number span -->
+            <span class="scene-number-right  {{line.trueScene}} {{line.visible}} {{line.hideSceneNumberText}}"
+                style='bottom:{{ dualSceneNum line}}; right:{{ formatX line.xPos}};'>
+                {{line.sceneNumberText}}
+            </span>
+            {{/each}}
+            <li class=footer>made by Sides-Ways</li>
+        </ul>
+        <!-- THIS IS OUR SECOND SCREENBOX -->
+        <ul class="screenbox">
+            {{#each page as |line|}}
+            <span class="watermark">{{line.watermarkText}}</span>
+            <!-- page number span -->
+            <span class="draft-color-text" {{line.visible}}>{{line.draftColorText}}</span>
+            <span class="page-number-text" {{line.visible}}>{{line.pageNumberText}}</span>
+
+            <!-- scene number span -->
+            <span class='scene-number-left {{line.trueScene}} {{ line.visible }} {{line.hideSceneNumberText}}'
+                style='bottom: {{dualSceneNum line}}; left:{{ formatX line.xPos}}'>
+                {{line.sceneNumberText}}
+            </span>
+
+            <!-- start span -->
+            <span class="{{line.bar}} {{line.visible}}" style="bottom:{{startSingle line.barY}}">
+                <span class="start-span">START {{line.sceneNumberText}}</span>
+            </span>
+
+            <!-- actual line -->
+            <li class="{{ line.visible}} {{ line.category }} {{line.hidden}}"
+                style='bottom: {{ formatY line.yPos}}; left:{{ formatX line.xPos}};'>
+                {{line.text}}
+            </li>
+
+            <!-- revision asterisks  -->
+            <span class="{{line.isRevision}} hidden" style="bottom:{{formatY line.yPos}}">*</span>
+
+            <!-- continue spans -->
+            <span style="right:50px" class="{{line.category}} {{line.cont}}">
+                ↓↓↓{{line.sceneNumberText}} CONTINUED ↓↓↓
+            </span>
+
+            <!-- end span -->
+            <span class="{{line.end}} {{line.hideEnd}}" style="bottom: {{formatEndY line.endY}}">
+                <span class="end-span"> END {{line.sceneNumberText}}</span>
+            </span>
+
+            <!-- right scene number span -->
+            <span class="scene-number-right  {{line.trueScene}} {{line.visible}} {{line.hideSceneNumberText}}"
+                style='bottom: {{ dualSceneNum line}}; right:{{ formatX line.xPos}};'>
+                {{line.sceneNumberText}}
+            </span>
+            {{/each}}
+            <li class=footer>
+                made by Sides-ways<br>
+            </li>
+        </ul>
+    </div>
+    {{/each}}
+    <!-- this line is checked and removed to tell pupeteer we are done with the doc -->
+    <div id="final">*$_finished</div>
+    <div class="break last">
+        <div class="notes"> Notes:</div>
+
+        <div class="notes"> Notes: </div>
+    </div>
+</body>
+
+</html>
