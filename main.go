@@ -19,7 +19,7 @@ import (
 	"github.com/chromedp/chromedp"
 	"github.com/gorilla/mux"
 	"github.com/jung-kurt/gofpdf"
-	"github.com/pdfcpu/pdfcpu/pkg/api"
+
 )
 
 type PDFRequest struct {
