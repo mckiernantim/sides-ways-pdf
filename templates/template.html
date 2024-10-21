@@ -283,21 +283,21 @@
 
             <!-- page number span -->
             <li class="draft-color-text true">{{.draftColorText}}</li>
-            <li class="page-number-text {{.visible}}"> {{.pageNumberText}} </li>
+            <li class="page-number-text {{if eq .visible "true"}}visible{{else}}hidden{{end}}"> {{.pageNumberText}} </li>
 
             <!-- scene number span -->
-            <span class='scene-number-left {{ .trueScene }} {{ .visible }} {{.hideSceneNumberText}}'
+            <span class='scene-number-left {{.trueScene}} {{if eq .visible "true"}}visible{{else}}hidden{{end}} {{.hideSceneNumberText}}'
                 style='bottom: {{singleSceneY .yPos}}; left:{{ doubleX .xPos}};'>
                 {{.sceneNumberText}}
             </span>
 
             <!-- start span -->
-            <span class="{{.bar}} {{.visible}}" style="bottom:{{ singleSceneY .barY}}">
+            <span class="{{.bar}} {{if eq .visible "true"}}visible{{else}}hidden{{end}}" style="bottom:{{ singleSceneY .barY}}">
                 <span class="start-span">START {{.sceneNumberText}} </span>
             </span>
 
             <!-- LINE SPAN -->
-            <li class="{{ .visible }} {{ .category }} {{.hidden}}"
+            <li class="{{if eq .visible "true"}}visible{{else}}hidden{{end}} {{.category}} {{.hidden}}"
                 style='bottom: {{ singleSceneY .yPos }}; left:{{ doubleX .xPos}};'>
                 {{.text}}
             </li>
@@ -316,19 +316,19 @@
             </span>
 
             <!-- right scene number span -->
-            <span class="scene-number-right  {{.trueScene}} {{.visible}} {{.hideSceneNumberText}}"
+            <span class="scene-number-right {{.trueScene}} {{if eq .visible "true"}}visible{{else}}hidden{{end}} {{.hideSceneNumberText}}"
                 style='bottom: {{ singleSceneY .yPos}}; right:{{ doubleX .xPos}};'>
                 {{.sceneNumberText}}
             </span>
             {{end}}
             <li class="footer">
-                <img src="data:image/png;base64,{{.LogoBase64}}" alt="Sides-ways Logo" style="height: 20px; vertical-align: middle; margin-right: 5px;">
+                <img src="{{$.LogoURL}}" alt="Sides-ways Logo" style="height: 20px; vertical-align: middle; margin-right: 5px;">
                 made by Sides-ways
             </li>
         </ul>
     </div>
     {{end}}
-    <!-- this line is checked and removed to tell pupeteer we are done with the doc -->
+    <!-- this line is checked and removed to tell puppeteer we are done with the doc -->
     <div id="final">*$_finished</div>
     <div class="break last">
         <div class="notes">Notes:</div>

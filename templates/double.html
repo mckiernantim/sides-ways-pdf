@@ -318,7 +318,6 @@
     </style>
     <meta charset="utf-8">
 </head>
-
 <body>
     {{range .ScriptData}}
     <!-- SET A PAGE BREAK FOR EACH SEPARATE PAGE -->
@@ -328,22 +327,22 @@
             {{range .}}
             <span class="watermark">{{.WatermarkText}}</span>
             <!-- page number span -->
-            <span class="draft-color-text" {{if .Visible}}style="display:block"{{else}}style="display:none"{{end}}>{{.DraftColorText}}</span>
-            <span class="page-number-text" {{if .Visible}}style="display:block"{{else}}style="display:none"{{end}}>{{.PageNumberText}}</span>
+            <span class="draft-color-text" {{if eq .Visible "true"}}style="display:block"{{else}}style="display:none"{{end}}>{{.DraftColorText}}</span>
+            <span class="page-number-text" {{if eq .Visible "true"}}style="display:block"{{else}}style="display:none"{{end}}>{{.PageNumberText}}</span>
 
             <!-- scene number span -->
-            <span class='scene-number-left {{.TrueScene}} {{if .Visible}}visible{{else}}hidden{{end}} {{.HideSceneNumberText}}'
+            <span class='scene-number-left {{.TrueScene}} {{if eq .Visible "true"}}visible{{else}}hidden{{end}} {{.HideSceneNumberText}}'
                 style='bottom: {{dualSceneNum .}}; left:{{formatX .XPos}};'>
                 {{.SceneNumberText}}
             </span>
 
             <!-- start span -->
-            <span class="{{.Bar}} {{if .Visible}}visible{{else}}hidden{{end}}" style="bottom:{{startSingle .BarY}}">
+            <span class="{{.Bar}} {{if eq .Visible "true"}}visible{{else}}hidden{{end}}" style="bottom:{{startSingle .BarY}}">
                 <span class="start-span">START {{.SceneNumberText}}</span>
             </span>
 
             <!-- LINE SPAN -->
-            <li class="{{if .Visible}}visible{{else}}hidden{{end}} {{.Category}} {{.Hidden}}"
+            <li class="{{if eq .Visible "true"}}visible{{else}}hidden{{end}} {{.Category}} {{.Hidden}}"
                 style='bottom: {{formatY .YPos}}; left:{{formatX .XPos}};'>
                 {{.Text}}
             </li>
@@ -358,34 +357,34 @@
             </span>
 
             <!-- right scene number span -->
-            <span class="scene-number-right {{.TrueScene}} {{if .Visible}}visible{{else}}hidden{{end}} {{.HideSceneNumberText}}"
+            <span class="scene-number-right {{.TrueScene}} {{if eq .Visible "true"}}visible{{else}}hidden{{end}} {{.HideSceneNumberText}}"
                 style='bottom:{{dualSceneNum .}}; right:{{formatX .XPos}};'>
                 {{.SceneNumberText}}
             </span>
             {{end}}
-            <li class=footer>made by Sides-Ways</li>
+            <li class="footer">made by Sides-Ways</li>
         </ul>
         <!-- THIS IS OUR SECOND SCREENBOX -->
         <ul class="screenbox">
             {{range .}}
             <span class="watermark">{{.WatermarkText}}</span>
             <!-- page number span -->
-            <span class="draft-color-text" {{if .Visible}}style="display:block"{{else}}style="display:none"{{end}}>{{.DraftColorText}}</span>
-            <span class="page-number-text" {{if .Visible}}style="display:block"{{else}}style="display:none"{{end}}>{{.PageNumberText}}</span>
+            <span class="draft-color-text" {{if eq .Visible "true"}}style="display:block"{{else}}style="display:none"{{end}}>{{.DraftColorText}}</span>
+            <span class="page-number-text" {{if eq .Visible "true"}}style="display:block"{{else}}style="display:none"{{end}}>{{.PageNumberText}}</span>
 
             <!-- scene number span -->
-            <span class='scene-number-left {{.TrueScene}} {{if .Visible}}visible{{else}}hidden{{end}} {{.HideSceneNumberText}}'
+            <span class='scene-number-left {{.TrueScene}} {{if eq .Visible "true"}}visible{{else}}hidden{{end}} {{.HideSceneNumberText}}'
                 style='bottom: {{dualSceneNum .}}; left:{{formatX .XPos}}'>
                 {{.SceneNumberText}}
             </span>
 
             <!-- start span -->
-            <span class="{{.Bar}} {{if .Visible}}visible{{else}}hidden{{end}}" style="bottom:{{startSingle .BarY}}">
+            <span class="{{.Bar}} {{if eq .Visible "true"}}visible{{else}}hidden{{end}}" style="bottom:{{startSingle .BarY}}">
                 <span class="start-span">START {{.SceneNumberText}}</span>
             </span>
 
             <!-- actual line -->
-            <li class="{{if .Visible}}visible{{else}}hidden{{end}} {{.Category}} {{.Hidden}}"
+            <li class="{{if eq .Visible "true"}}visible{{else}}hidden{{end}} {{.Category}} {{.Hidden}}"
                 style='bottom: {{formatY .YPos}}; left:{{formatX .XPos}};'>
                 {{.Text}}
             </li>
@@ -404,14 +403,13 @@
             </span>
 
             <!-- right scene number span -->
-            <span class="scene-number-right {{.TrueScene}} {{if .Visible}}visible{{else}}hidden{{end}} {{.HideSceneNumberText}}"
+            <span class="scene-number-right {{.TrueScene}} {{if eq .Visible "true"}}visible{{else}}hidden{{end}} {{.HideSceneNumberText}}"
                 style='bottom: {{dualSceneNum .}}; right:{{formatX .XPos}};'>
                 {{.SceneNumberText}}
             </span>
             {{end}}
             <li class="footer">
-                <img src="data:image/png;base64,{{.LogoBase64}}" alt="Sides-ways Logo" style="height: 20px; vertical-align: middle; margin-right: 5px;">
-                made by Sides-ways
+                made by Sides-ways<br>
             </li>
         </ul>
     </div>

@@ -21,7 +21,52 @@ import (
 	"github.com/jung-kurt/gofpdf"
 
 )
+var singleFuncMap = template.FuncMap{
+    "formatX": func(x float64) string {
+        return fmt.Sprintf("%.2fpx", x)
+    },
+    "formatY": func(y float64) string {
+        return fmt.Sprintf("%.2fpx", y)
+    },
+    "formatEndY": func(y float64) string {
+        return fmt.Sprintf("%.2fpx", y)
+    },
+    "singleSceneY": func(y float64) string {
+        return fmt.Sprintf("%.2fpx", y)
+    },
+    "doubleX": func(x float64) string {
+        return fmt.Sprintf("%.2fpx", x * 2)
+    },
+}
 
+// Function map for double template
+var doubleFuncMap = template.FuncMap{
+    "dualSceneNum": func(line LineData) string {
+        return fmt.Sprintf("%.2fpx", line.YPos)
+    },
+    "formatX": func(x float64) string {
+        return fmt.Sprintf("%.2fpx", x)
+    },
+    "formatY": func(y float64) string {
+        return fmt.Sprintf("%.2fpx", y)
+    },
+    "startSingle": func(y float64) string {
+        return fmt.Sprintf("%.2fpx", y)
+    },
+    "formatEndY": func(y float64) string {
+        return fmt.Sprintf("%.2fpx", y)
+    },
+}
+
+// Function to create and parse single template
+func createSingleTemplate(templateContent string) (*template.Template, error) {
+    return template.New("single-pdf").Funcs(singleFuncMap).Parse(templateContent)
+}
+
+// Function to create and parse double template
+func createDoubleTemplate(templateContent string) (*template.Template, error) {
+    return template.New("double-pdf").Funcs(doubleFuncMap).Parse(templateContent)
+}
 type PDFRequest struct {
 	Name          string          `json:"name"`
 	CallSheetPath string          `json:"callSheetPath"`
@@ -37,7 +82,7 @@ type LineData struct {
     YPos                float64 `json:"yPos"`
     XPos                float64 `json:"xPos"`
     EndY                float64 `json:"endY"`
-    Visible             bool    `json:"visible"`
+    Visible             string   `json:"visible"`
     Bar                 string  `json:"bar"`
     SceneIndex          int     `json:"sceneIndex"`
     TrueScene           string  `json:"trueScene"`
@@ -238,47 +283,43 @@ func convertImageToPDF(imagePath string) ([]byte, error) {
     return buf.Bytes(), nil
 }
 
-func generateHTML(req PDFRequest) (string, error) {
-    templatePath := filepath.Join("templates", "double.html")
+func generateHTML(req PDFRequest, isDouble bool) (string, error) {
+    var templatePath string
+    var createTemplateFunc func(string) (*template.Template, error)
+
+    if isDouble {
+        templatePath = filepath.Join("templates", "double.html")
+        createTemplateFunc = createDoubleTemplate
+    } else {
+        templatePath = filepath.Join("templates", "single.html")
+        createTemplateFunc = createSingleTemplate
+    }
+
     templateContent, err := ioutil.ReadFile(templatePath)
     if err != nil {
         return "", fmt.Errorf("failed to read template file: %v", err)
     }
 
-    funcMap := template.FuncMap{
-        "formatX": func(x float64) string {
-            return fmt.Sprintf("%.2fpx", x)
-        },
-        "formatY": func(y float64) string {
-            return fmt.Sprintf("%.2fpx", y)
-        },
-        "formatEndY": func(y float64) string {
-            return fmt.Sprintf("%.2fpx", y)
-        },
-        "dualSceneNum": func(line LineData) string {
-            return fmt.Sprintf("%.2fpx", line.YPos)
-        },
-        "startSingle": func(y float64) string {
-            return fmt.Sprintf("%.2fpx", y)
-        },
-    }
-
-    tmpl, err := template.New("pdf").Funcs(funcMap).Parse(string(templateContent))
+    tmpl, err := createTemplateFunc(string(templateContent))
     if err != nil {
         return "", fmt.Errorf("failed to parse template: %v", err)
     }
 
-    var sceneData [][]LineData
-    err = json.Unmarshal(req.ScriptData, &sceneData)
+    var scriptData [][]LineData
+    err = json.Unmarshal(req.ScriptData, &scriptData)
     if err != nil {
         return "", fmt.Errorf("failed to unmarshal script data: %v", err)
     }
 
-    doubleCheckLinePositionsAndHiddenValuesBeforePDFGeneration(sceneData)
+    doubleCheckLinePositionsAndHiddenValuesBeforePDFGeneration(scriptData)
+
+    // GitHub raw content URL for the logo
+    logoURL := "https://raw.githubusercontent.com/mckiernantim/sides-ways-pdf/main/assets/sides-bw-logo.png"
 
     data := map[string]interface{}{
         "Name":       req.Name,
-        "ScriptData": sceneData,
+        "ScriptData": scriptData,
+        "LogoURL":    logoURL,
     }
 
     var buf bytes.Buffer
