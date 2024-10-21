@@ -30,24 +30,30 @@ type PDFRequest struct {
 }
 
 type LineData struct {
-	Category            string  `json:"category"`
-	SubCategory         string  `json:"subCategory"`
-	CalculatedYpos      string  `json:"calculatedYpos"`
-	CalculatedEnd       string  `json:"calculatedEnd"`
-	YPos                float64 `json:"yPos"`
-	XPos                float64 `json:"xPos"`
-	EndY                float64 `json:"endY"`
-	Visible             string  `json:"visible"`
-	Bar                 string  `json:"bar"`
-	SceneIndex          int     `json:"sceneIndex"`
-	TrueScene           string  `json:"trueScene"`
-	End                 string  `json:"end"`
-	Cont                string  `json:"cont"`
-	HideEnd             string  `json:"hideEnd"`
-	HideCont            string  `json:"hideCont"`
-	SceneNumberText     string  `json:"sceneNumberText"`
-	HideSceneNumberText string  `json:"hideSceneNumberText"`
-	Text                string  `json:"text"`
+    Category            string  `json:"category"`
+    SubCategory         string  `json:"subCategory"`
+    CalculatedYpos      string  `json:"calculatedYpos"`
+    CalculatedEnd       string  `json:"calculatedEnd"`
+    YPos                float64 `json:"yPos"`
+    XPos                float64 `json:"xPos"`
+    EndY                float64 `json:"endY"`
+    Visible             bool    `json:"visible"`
+    Bar                 string  `json:"bar"`
+    SceneIndex          int     `json:"sceneIndex"`
+    TrueScene           string  `json:"trueScene"`
+    End                 string  `json:"end"`
+    Cont                string  `json:"cont"`
+    HideEnd             string  `json:"hideEnd"`
+    HideCont            string  `json:"hideCont"`
+    SceneNumberText     string  `json:"sceneNumberText"`
+    HideSceneNumberText string  `json:"hideSceneNumberText"`
+    Text                string  `json:"text"`
+    WatermarkText       string  `json:"watermarkText"`
+    DraftColorText      string  `json:"draftColorText"`
+    PageNumberText      string  `json:"pageNumberText"`
+    Hidden              string  `json:"hidden"`
+    IsRevision          string  `json:"isRevision"`
+    BarY                float64 `json:"barY"`
 }
 
 func main() {
